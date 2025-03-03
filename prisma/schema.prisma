@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+enum Role {
+  USER
+  ADMIN
+  NONE
+}
+
+enum LeaveType {
+  SICK
+  VACATION
+  PERSONAL
+}
+
+
+model User {
+  id              String       @id @default(uuid())
+  email           String       @unique
+  name            String?
+  role            Role       @default(NONE)
+  organization    Organization? @relation(fields: [organizationId], references: [id])
+  organizationId  String?
+  leaves  Leave[]
+}
+
+model Organization {
+  id               String   @id @default(uuid()) 
+  organizationName String
+  teams           Team[] 
+  users           User[] 
+}
+
+
+
+model Leave{
+  id String @id @default(uuid())
+  leaveType LeaveType 
+  reason String
+  approve Boolean @default(false)
+  approveBy String
+  user User @relation(fields: [userId],references: [id])
+  userId String
+}
+
+
+model Team{
+   id String @id @default(uuid()) 
+   teamName String
+   teamMembers TeamMember[]
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  organizationId String 
+    
+}
+model TeamMember{
+   id String @id @default(uuid())
+  name String
+  email String
+  team Team @relation(fields: [teamId], references: [id])
+  teamId String 
+}
