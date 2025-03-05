@@ -1,4 +1,4 @@
-import { prisma } from "@/utils/Prima";
+import { prisma } from "@/lib/prisma";
 
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,6 +19,7 @@ export const POST = async (req: NextRequest) => {
       where: { id },
       data: {
         organizationId: organization.id,
+        role: "OWNER",
       },
     });
     return NextResponse.json({
