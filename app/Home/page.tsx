@@ -14,20 +14,22 @@ import axios from "axios";
 import Navbar from "@/components/navbar";
 import EntityCreationCard from "@/components/EntityCreationCard";
 import { Loading } from "@/components/Loader";
-import { Button } from "@/components/ui/button";
+import OrganizationComponent from "@/components/OrganizationComponent";
 
 export default function Home() {
   const dispatch = useDispatch();
   const [organizationName, setOrganizationName] = useState<string>("");
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [hoveredOrgId, setHoveredOrgId] = useState<string | null>(null);
 
   // ✅ Correctly type useSelector
   const userData = useSelector((state: any) => state.userSlice.userData);
-  const Organizations = useSelector(
-    (state: any) => state.userSlice.organization
-  );
+
   const loading = useSelector((state: any) => state.userSlice.isLoading);
   const isFetch = useSelector((state: any) => state.userSlice.isFetch);
+  const Organization = useSelector(
+    (state: any) => state.userSlice.organization
+  );
   // ✅ Get session data
   const { data, status } = useSession();
 
@@ -79,10 +81,9 @@ export default function Home() {
       id: userData.id,
       organizationName,
     });
+    setIsDialogOpen(false);
     dispatch(setisFetch(!isFetch));
     dispatch(setLoading(false));
-
-    console.log(result.data);
   }
   return (
     <div>
@@ -92,38 +93,23 @@ export default function Home() {
       ) : (
         <>
           <EntityCreationCard
-            showDescription={Organizations ? false : true}
-            description="organization"
+            showDescription={Organization ? false : true}
+            description="Organization"
             entityName={organizationName}
             setEntityName={setOrganizationName}
             isDialogOpen={isDialogOpen}
             setIsDialogOpen={setIsDialogOpen}
             handleCreateEntity={createOrganization}
-          />
-
-          <div className="flex gap-3 items-center justify-center py-9 px-26 flex-wrap  ">
-            {Organizations &&
-              Organizations.map((organization: any) => (
-                <div
-                  key={organization.id}
-                  className=" flex justify-center shadow-[3px_-1px_5px_7px_rgba(0,_0,_0,_0.1)] rounded-md"
-                >
-                  <div className="flex justify-between py-7 p-8 gap-44 items-center">
-                    <div className="flex flex-col gap-3">
-                      {" "}
-                      <h2 className="text-lg font-semibold ">
-                        Workspace for{" "}
-                        <span className="font-bold">{userData.email}</span>{" "}
-                      </h2>
-                      <div className="text-md font-bold">
-                        {organization.organizationName}
-                      </div>
-                    </div>
-                    <Button className="cursor-pointer">Launch</Button>
-                  </div>
-                </div>
-              ))}
-          </div>
+          >
+            {Organization && (
+              <OrganizationComponent
+                organization={Organization}
+                isHovered={hoveredOrgId === Organization.id}
+                onHover={() => setHoveredOrgId(Organization.id)}
+                onLeave={() => setHoveredOrgId(null)}
+              />
+            )}
+          </EntityCreationCard>
         </>
       )}
     </div>

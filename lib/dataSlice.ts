@@ -15,8 +15,9 @@ const initialState = {
     image: "",
   },
   isFetch: false as boolean,
-  organization: [] as any,
+  organization: {} as any,
   isLoading: false as boolean,
+  team: [] as any,
 };
 
 const userSlice = createSlice({
@@ -27,7 +28,7 @@ const userSlice = createSlice({
       state.userData = action.payload;
     },
     setOrganization: (state, action: PayloadAction) => {
-      state.organization = [...state.organization, action.payload];
+      state.organization = action.payload;
     },
     setisFetch: (state, action: PayloadAction<boolean>) => {
       state.isFetch = action.payload;
@@ -35,9 +36,12 @@ const userSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
+    setTeam: (state, action: PayloadAction) => {
+      state.team = action.payload;
+    },
   },
 });
 
-export const { setUserData, setOrganization, setisFetch, setLoading } =
+export const { setUserData, setOrganization, setisFetch, setLoading, setTeam } =
   userSlice.actions;
 export default userSlice.reducer;

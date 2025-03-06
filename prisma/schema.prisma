@@ -19,11 +19,15 @@ enum Role {
   ADMIN
   NONE
   OWNER
+  TeamLEAD
+
 }
 
 enum LeaveType {
   SICK
   VACATION
+  FULL
+  HALFDAY
   PERSONAL
 }
 
@@ -33,16 +37,18 @@ model User {
   email           String       @unique
   name            String?
   role            Role       @default(NONE)
-  organization    Organization? @relation(fields: [organizationId], references: [id])
+  organization    Organization? @relation("OrganizationUsers",fields: [organizationId], references: [id])
   organizationId  String?
   leaves  Leave[]
+  teamMembers    TeamMember[]
+  
 }
 
 model Organization {
   id               String   @id @default(uuid()) 
   organizationName String
   teams           Team[] 
-  users           User[] 
+  users           User[] @relation("OrganizationUsers")
 }
 
 
@@ -54,7 +60,9 @@ model Leave{
   approve Boolean @default(false)
   approveBy String
   user User @relation(fields: [userId],references: [id])
+  team Team @relation(fields: [teamId],references: [id])
   userId String
+  teamId String
 }
 
 
@@ -62,14 +70,18 @@ model Team{
    id String @id @default(uuid()) 
    teamName String
    teamMembers TeamMember[]
-  organization   Organization  @relation(fields: [organizationId], references: [id])
-  organizationId String 
-    
+   organization   Organization  @relation(fields: [organizationId], references: [id])
+   organizationId String 
+   leaves Leave[]
 }
-model TeamMember{
-   id String @id @default(uuid())
-  name String
-  email String
-  team Team @relation(fields: [teamId], references: [id])
-  teamId String 
+model TeamMember {
+  id             String @id @default(uuid())
+  contactNumber String? @default("")
+  role          String? @default("")
+  team          Team   @relation(fields: [teamId], references: [id])
+  teamId        String 
+  user          User   @relation(fields: [userId], references: [id])
+  userId        String
+  email         String
+  name          String
 }
