@@ -11,6 +11,12 @@ export const GET = async (req: NextRequest) => {
         where: {
           organizationId,
         },
+        select: {
+          id: true,
+          teamMembers: true,
+          teamName: true,
+          organizationId: true,
+        },
       });
 
       return NextResponse.json({

@@ -6,6 +6,7 @@ import {
   setOrganization,
   setLoading,
   setisFetch,
+  setAllUsers,
 } from "@/lib/dataSlice";
 import { useSession } from "next-auth/react";
 
@@ -73,6 +74,15 @@ export default function Home() {
       getOrganization();
     }
   }, [status, userData, isFetch]);
+
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      const result = await axios.get("/api/getUsers");
+
+      dispatch(setAllUsers(result.data.allUsers));
+    };
+    fetchAllUsers();
+  }, [isFetch, userData, dispatch]);
 
   async function createOrganization(e: React.FormEvent) {
     e.preventDefault();

@@ -9,12 +9,23 @@ import {
 
 import { Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
-interface TeamCardProps {
-  id: number;
+export interface TeamMember {
+  id: string;
+  contactNumber?: string;
+  role?: string;
+  teamId: string;
+  userId: string;
+  email: string;
+  name: string;
+}
+
+export interface TeamCardProps {
+  id: string;
   teamName: string;
   description: string;
-  teamMembers: [];
+  teamMembers: TeamMember[];
 }
 
 export default function TeamCard({
@@ -25,13 +36,22 @@ export default function TeamCard({
   organizationId: string;
 }) {
   const router = useRouter();
+  const userData = useSelector((state: any) => state.userSlice.userData);
 
+  const redirectToTeamDetails = () => {
+    const isTeamMemberExist = team.teamMembers.some(
+      (member: TeamMember) => member.userId === userData.id
+    );
+    if (isTeamMemberExist) {
+      router.push(`/Organization/${organizationId}/${team.id}`);
+    } else {
+      alert(`You are not member of ${team.teamName}`);
+    }
+  };
   return (
     <Card
       className="transition-all duration-300 hover:shadow-md  cursor-pointer"
-      onClick={() => {
-        router.push(`/Organization/${organizationId}/${team.id}`);
-      }}
+      onClick={redirectToTeamDetails}
     >
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
