@@ -10,7 +10,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/Home", req.url));
   }
   // If user is NOT logged in and trying to access "/Home", redirect to "/"
-  if (!session && currentPath === "/Home") {
+  if (
+    !session &&
+    currentPath === "/Home" &&
+    currentPath.startsWith("/Organization")
+  ) {
     return NextResponse.redirect(new URL("/", req.url));
   }
 

@@ -26,6 +26,7 @@ export interface TeamCardProps {
   teamName: string;
   description: string;
   teamMembers: TeamMember[];
+  organizationId?: string;
 }
 
 export default function TeamCard({

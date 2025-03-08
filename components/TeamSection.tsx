@@ -5,15 +5,27 @@ import { Plus, Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { TeamCardProps, TeamMember } from "./team-card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PopupCard } from "./PopUpCard";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
+import { setisFetch, setLoading, setTeam } from "@/lib/dataSlice";
+import { Loading } from "@/components/Loader";
 
 export const TeamSection = ({ team }: { team: TeamCardProps }) => {
+  const isFetch = useSelector((state: any) => state.userSlice.isFetch);
+  const isLoading = useSelector((state: any) => state.userSlice.isLoading);
+
   const [isModelOpen, setIsModelOpen] = useState<boolean>(false);
+  const dispatch = useDispatch();
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const [searchMemberQuery, setSearchMemberQuery] = useState("");
+
   const allUsers = useSelector((state: any) => state.userSlice.allUsers);
 
-  const teamMemeberUserIds = team.teamMembers.map((data: any) => data.userId);
+  const teamMemeberUserIds = team?.teamMembers.map((data: any) => data.userId);
 
   const userNotInTeam = allUsers.filter(
     (user: any) =>
@@ -22,14 +34,62 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
       )
   );
 
+  const filterUsers = userNotInTeam.filter((user: any) =>
+    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filterTeamMember = team?.teamMembers?.filter((member: TeamMember) =>
+    member.name.toLowerCase().includes(searchMemberQuery.toLowerCase())
+  );
+
+  const addMemeberHandler = async (
+    teamId: string,
+    name: string,
+    email: string,
+    organizationId: string,
+    userId: string
+  ) => {
+    const result = await axios.post("/api/addMember", {
+      teamId,
+      name,
+      email,
+      organizationId,
+      userId,
+    });
+    dispatch(setisFetch(!isFetch));
+    console.log(result.data.message);
+    setIsModelOpen(false);
+  };
+
+  useEffect(() => {
+    async function getTeam() {
+      try {
+        dispatch(setLoading(true));
+        const result = await axios.get(
+          `/api/getTeam?organizationId=${String(team?.organizationId)}`
+        );
+        const teamData = result.data.team;
+
+        if (teamData) {
+          dispatch(setTeam(teamData));
+        }
+      } catch (error: any) {
+        console.error(`Error Occur while getting Team ${error.message}`);
+      } finally {
+        dispatch(setLoading(false));
+      }
+    }
+    getTeam();
+  }, [dispatch, isFetch]);
+
   return (
-    <div className=" w-full">
+    <div className="space-y-6 w-[90%]">
       <div className="flex flex-col gap-5">
         <div className="flex flex-wrap justify-between">
           <div className="flex gap-4 items-center">
             <h2 className="text-2xl font-bold">Team Member</h2>
-            <Badge variant="secondary" className="rounded-full ">
-              {team.teamMembers.length > 0 ? team.teamMembers.length : 0}
+            <Badge variant="secondary" className="rounded-full">
+              {team?.teamMembers.length > 0 ? team.teamMembers.length : 0}
             </Badge>
           </div>
           <Button
@@ -46,24 +106,30 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
           <Input
             type="text"
             placeholder="Seach memebers..."
-            className="pl-10 "
+            className="pl-10 w-[27%] "
+            value={searchMemberQuery}
+            onChange={(e) => setSearchMemberQuery(e.target.value)}
           />
         </div>
-        <div className="flex justify-between flex-wrap p-8  ">
-          {team.teamMembers?.map((member: TeamMember) => (
-            <div
-              key={member.id}
-              className="flex items-center gap-4 py-10 px-4   border-1   shadow-lg rounded-lg
+        {isLoading ? (
+          <Loading />
+        ) : (
+          <div className="flex justify-center flex-wrap py-8 gap-6  items-center md:justify-between">
+            {filterTeamMember?.map((member: TeamMember) => (
+              <div
+                key={member.id}
+                className="flex items-center  gap-4 py-10 px-4  cursor-pointer border-1   shadow-lg rounded-lg
             transition-transform duration-300 ease-in-out hover:scale-105"
-            >
-              <Avatar>
-                <AvatarFallback>{member.name[0]}</AvatarFallback>
-              </Avatar>
-              <h2>{member.name}</h2>
-              <Badge>{member.role ? member.role : "Not assign"}</Badge>
-            </div>
-          ))}
-        </div>
+              >
+                <Avatar>
+                  <AvatarFallback>{member.name[0]}</AvatarFallback>
+                </Avatar>
+                <h2>{member.name}</h2>
+                <Badge>{member.role ? member.role : "Not assign"}</Badge>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <PopupCard
         isOpen={isModelOpen}
@@ -78,10 +144,12 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
               type="text"
               placeholder="Seach by name  . . ."
               className="pl-10 "
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="flex flex-col gap-4">
-            {userNotInTeam.map((user: any) => (
+            {filterUsers.map((user: any) => (
               <div
                 key={user.id}
                 className="flex p-2 justify-between items-center border-1 rounded-lg cursor-pointer"
@@ -94,7 +162,18 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
                   <h2>{user.name}</h2>
                 </div>
 
-                <Button className="h-10 w-10 rounded-full ">
+                <Button
+                  className="h-10 w-10 rounded-full "
+                  onClick={() =>
+                    addMemeberHandler(
+                      team.id,
+                      user.name,
+                      user.email,
+                      String(team?.organizationId),
+                      user.id
+                    )
+                  }
+                >
                   <Plus />
                 </Button>
               </div>

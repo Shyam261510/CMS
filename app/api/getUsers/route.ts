@@ -7,6 +7,7 @@ export const GET = async () => {
       select: {
         id: true,
         name: true,
+        email: true,
         organization: true,
         role: true,
         leaves: true,
