@@ -1,21 +1,16 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setUserData,
-  setOrganization,
-  setLoading,
-  setisFetch,
-  setAllUsers,
-} from "@/lib/dataSlice";
-import { useSession } from "next-auth/react";
+import { setLoading, setisFetch } from "@/lib/dataSlice";
 
-import type { UserState } from "@/lib/dataSlice";
 import axios from "axios";
 import Navbar from "@/components/navbar";
 import EntityCreationCard from "@/components/EntityCreationCard";
 import { Loading } from "@/components/Loader";
 import OrganizationComponent from "@/components/OrganizationComponent";
+import { getUserData } from "@/hooks/getUserData";
+import { getOrganization } from "@/hooks/getOrganization";
+import { fetchAllUsers } from "@/hooks/fetchAllUser";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -31,58 +26,17 @@ export default function Home() {
   const Organization = useSelector(
     (state: any) => state.userSlice.organization
   );
-  // ✅ Get session data
-  const { data, status } = useSession();
 
-  // ✅ Use useEffect to avoid infinite loop
-  useEffect(() => {
-    if (data?.user && status === "authenticated") {
-      const { id, name, email, image } = data.user as UserState;
+  // Getting user info like id , email , name etc.
 
-      // ✅ Only dispatch if the user data is different
-      if (
-        userData.id !== id ||
-        userData.name !== name ||
-        userData.email !== email ||
-        userData.image !== image
-      ) {
-        dispatch(setLoading(true));
-        dispatch(setUserData({ id, name, email, image }));
-        dispatch(setLoading(false));
-      }
-    }
-  }, [data, status, dispatch, userData]); // Dependencies to trigger effect only when session changes
+  getUserData();
 
-  // checking if User join any Organization or not
-  useEffect(() => {
-    if (userData.id) {
-      const getOrganization = async () => {
-        try {
-          dispatch(setLoading(true));
-          const result = await axios.get(
-            `/api/getOrganization?id=${userData.id}`
-          );
+  // getting organization data
 
-          dispatch(setOrganization(result.data.organization));
-        } catch (e) {
-          console.error(`Error Occur while getting organization`);
-        } finally {
-          dispatch(setLoading(false));
-        }
-      };
+  getOrganization();
 
-      getOrganization();
-    }
-  }, [status, userData, isFetch]);
-
-  useEffect(() => {
-    const fetchAllUsers = async () => {
-      const result = await axios.get("/api/getUsers");
-
-      dispatch(setAllUsers(result.data.allUsers));
-    };
-    fetchAllUsers();
-  }, [isFetch, userData, dispatch]);
+  // Getting all user's how have login in to our portal
+  fetchAllUsers();
 
   async function createOrganization(e: React.FormEvent) {
     e.preventDefault();

@@ -1,8 +1,8 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'NONE');
+CREATE TYPE "Role" AS ENUM ('USER', 'ADMIN', 'NONE', 'OWNER', 'TeamLEAD');
 
 -- CreateEnum
-CREATE TYPE "LeaveType" AS ENUM ('SICK', 'VACATION', 'PERSONAL');
+CREATE TYPE "LeaveType" AS ENUM ('SICK', 'VACATION', 'FULL', 'HALFDAY', 'PERSONAL');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -29,8 +29,9 @@ CREATE TABLE "Leave" (
     "leaveType" "LeaveType" NOT NULL,
     "reason" TEXT NOT NULL,
     "approve" BOOLEAN NOT NULL DEFAULT false,
-    "approveBy" TEXT NOT NULL,
+    "approveBy" TEXT,
     "userId" TEXT NOT NULL,
+    "teamId" TEXT NOT NULL,
 
     CONSTRAINT "Leave_pkey" PRIMARY KEY ("id")
 );
@@ -47,9 +48,12 @@ CREATE TABLE "Team" (
 -- CreateTable
 CREATE TABLE "TeamMember" (
     "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
+    "contactNumber" TEXT DEFAULT '',
+    "role" TEXT DEFAULT '',
     "teamId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
 
     CONSTRAINT "TeamMember_pkey" PRIMARY KEY ("id")
 );
@@ -64,7 +68,13 @@ ALTER TABLE "User" ADD CONSTRAINT "User_organizationId_fkey" FOREIGN KEY ("organ
 ALTER TABLE "Leave" ADD CONSTRAINT "Leave_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Leave" ADD CONSTRAINT "Leave_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Team" ADD CONSTRAINT "Team_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "Organization"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_teamId_fkey" FOREIGN KEY ("teamId") REFERENCES "Team"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TeamMember" ADD CONSTRAINT "TeamMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

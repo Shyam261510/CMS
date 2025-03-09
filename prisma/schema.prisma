@@ -58,6 +58,7 @@ model Leave{
   leaveType LeaveType 
   reason String
   approve Boolean @default(false)
+  rejected Boolean @default(false)
   approveBy String?
   user User @relation(fields: [userId],references: [id])
   team Team @relation(fields: [teamId],references: [id])

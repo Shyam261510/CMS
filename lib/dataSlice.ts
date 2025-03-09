@@ -7,7 +7,15 @@ export interface UserState {
   email: string;
   image: string;
 }
-
+export interface Leave {
+  id: string;
+  leaveType: string;
+  reason: string;
+  approve: boolean;
+  approveBy: string;
+  rejected: boolean;
+  userId: string;
+}
 interface AllUsers {
   id: string;
   name: string;
@@ -30,8 +38,8 @@ const initialState = {
   organization: {} as any,
   isLoading: false as boolean,
   team: [] as any,
-
   allUsers: [] as AllUsers[],
+  leaves: [] as Leave[],
 };
 
 const userSlice = createSlice({
@@ -56,6 +64,9 @@ const userSlice = createSlice({
     setAllUsers: (state, action: PayloadAction<AllUsers[]>) => {
       state.allUsers = action.payload;
     },
+    setLeaves: (state, action: PayloadAction<Leave[]>) => {
+      state.leaves = action.payload;
+    },
   },
 });
 
@@ -66,5 +77,6 @@ export const {
   setLoading,
   setTeam,
   setAllUsers,
+  setLeaves,
 } = userSlice.actions;
 export default userSlice.reducer;

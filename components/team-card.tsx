@@ -6,6 +6,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Leave } from "@/lib/dataSlice";
 
 import { Users } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -27,6 +28,7 @@ export interface TeamCardProps {
   description: string;
   teamMembers: TeamMember[];
   organizationId?: string;
+  leaves?: Leave[];
 }
 
 export default function TeamCard({

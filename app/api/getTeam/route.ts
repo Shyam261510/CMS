@@ -16,6 +16,7 @@ export const GET = async (req: NextRequest) => {
           teamMembers: true,
           teamName: true,
           organizationId: true,
+          leaves: true,
         },
       });
 
