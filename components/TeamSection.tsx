@@ -1,7 +1,7 @@
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Edit, EyeIcon, Edit2 } from "lucide-react";
 import { Input } from "./ui/input";
 import { TeamCardProps, TeamMember } from "./team-card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -11,12 +11,19 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { setisFetch, setLoading, setTeam } from "@/lib/dataSlice";
 import { Loading } from "@/components/Loader";
+import toast from "react-hot-toast";
 
 export const TeamSection = ({ team }: { team: TeamCardProps }) => {
   const isFetch = useSelector((state: any) => state.userSlice.isFetch);
   const isLoading = useSelector((state: any) => state.userSlice.isLoading);
+  const userData = useSelector((state: any) => state.userSlice.userData);
+  const role = team?.teamMembers
+    ?.map((member: TeamMember) => member.userId === userData.id && member.role)
+    .filter((data) => data !== false)
+    .flat();
 
   const [isModelOpen, setIsModelOpen] = useState<boolean>(false);
+  const [isInfoModelOpen, setIsInfoModelOpen] = useState<boolean>(false);
   const dispatch = useDispatch();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,6 +64,7 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
       userId,
     });
     dispatch(setisFetch(!isFetch));
+    toast.success(`You add ${name}`);
     console.log(result.data.message);
     setIsModelOpen(false);
   };
@@ -82,6 +90,8 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
     getTeam();
   }, [dispatch, isFetch]);
 
+  if (isLoading) return <Loading />;
+
   return (
     <div className="space-y-6 w-[90%]">
       <div className="flex flex-col gap-5">
@@ -92,13 +102,15 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
               {team?.teamMembers.length > 0 ? team.teamMembers.length : 0}
             </Badge>
           </div>
-          <Button
-            className="flex gap-3 cursor-pointer  "
-            onClick={() => setIsModelOpen(true)}
-          >
-            <Plus />
-            <span>Add Member</span>
-          </Button>
+          {role[0] === "TeamLead" && (
+            <Button
+              className="flex gap-3 cursor-pointer  "
+              onClick={() => setIsModelOpen(true)}
+            >
+              <Plus />
+              <span>Add Member</span>
+            </Button>
+          )}
         </div>
 
         <div className="relative">
@@ -111,25 +123,28 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
             onChange={(e) => setSearchMemberQuery(e.target.value)}
           />
         </div>
-        {isLoading ? (
-          <Loading />
-        ) : (
-          <div className="flex justify-center flex-wrap py-8 gap-6  items-center md:justify-between">
-            {filterTeamMember?.map((member: TeamMember) => (
-              <div
-                key={member.id}
-                className="flex items-center  gap-4 py-10 px-4  cursor-pointer border-1   shadow-lg rounded-lg
+
+        <div className="flex  flex-wrap py-8 gap-6  items-center">
+          {filterTeamMember?.map((member: TeamMember) => (
+            <div
+              key={member.id}
+              className="relative flex items-center  gap-4 py-10 px-4  cursor-pointer border-1   shadow-lg rounded-lg
             transition-transform duration-300 ease-in-out hover:scale-105"
+            >
+              <Avatar>
+                <AvatarFallback>{member.name[0]}</AvatarFallback>
+              </Avatar>
+              <h2>{member.name}</h2>
+              <Badge>{member.role ? member.role : "Not assign"}</Badge>
+              <h2
+                className="absolute right-3 top-2 text-gray-800 hover:text-gray-500"
+                onClick={() => setIsInfoModelOpen(true)}
               >
-                <Avatar>
-                  <AvatarFallback>{member.name[0]}</AvatarFallback>
-                </Avatar>
-                <h2>{member.name}</h2>
-                <Badge>{member.role ? member.role : "Not assign"}</Badge>
-              </div>
-            ))}
-          </div>
-        )}
+                <EyeIcon />
+              </h2>
+            </div>
+          ))}
+        </div>
       </div>
       <PopupCard
         isOpen={isModelOpen}
@@ -179,6 +194,18 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
               </div>
             ))}
           </div>
+        </div>
+      </PopupCard>
+
+      {/* user can edit details */}
+      <PopupCard
+        isOpen={isInfoModelOpen}
+        onClose={() => setIsInfoModelOpen(false)}
+        title="Profile Details"
+        description="View and manage your personal information"
+      >
+        <div className="relative ">
+          <Edit2 className="absolute right-8 bottom-7 text-gray-800 hover:text-gray-400" />
         </div>
       </PopupCard>
     </div>

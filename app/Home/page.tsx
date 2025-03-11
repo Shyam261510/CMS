@@ -11,6 +11,7 @@ import OrganizationComponent from "@/components/OrganizationComponent";
 import { getUserData } from "@/hooks/getUserData";
 import { getOrganization } from "@/hooks/getOrganization";
 import { fetchAllUsers } from "@/hooks/fetchAllUser";
+import toast from "react-hot-toast";
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -41,40 +42,36 @@ export default function Home() {
   async function createOrganization(e: React.FormEvent) {
     e.preventDefault();
     dispatch(setLoading(true));
-    const result = await axios.post("/api/createOrganization", {
+    await axios.post("/api/createOrganization", {
       id: userData.id,
       organizationName,
     });
     setIsDialogOpen(false);
     dispatch(setisFetch(!isFetch));
     dispatch(setLoading(false));
+    toast.success(`You created ${organizationName} Organization`);
   }
+  if (loading) return <Loading />;
   return (
     <div>
       <Navbar />
-      {loading ? (
-        <Loading />
-      ) : (
-        <>
-          <EntityCreationCard
-            showDescription={Organization ? false : true}
-            description="Organization"
-            entityName={organizationName}
-            setEntityName={setOrganizationName}
-            isDialogOpen={isDialogOpen}
-            setIsDialogOpen={setIsDialogOpen}
-            handleCreateEntity={createOrganization}
-          >
-            {Organization && (
-              <OrganizationComponent
-                organization={Organization}
-                isHovered={hoveredOrgId === Organization.id}
-                onHover={() => setHoveredOrgId(Organization.id)}
-                onLeave={() => setHoveredOrgId(null)}
-              />
-            )}
-          </EntityCreationCard>
-        </>
+      {Organization && (
+        <EntityCreationCard
+          showDescription={Organization ? false : true}
+          description="Organization"
+          entityName={organizationName}
+          setEntityName={setOrganizationName}
+          isDialogOpen={isDialogOpen}
+          setIsDialogOpen={setIsDialogOpen}
+          handleCreateEntity={createOrganization}
+        >
+          <OrganizationComponent
+            organization={Organization}
+            isHovered={hoveredOrgId === Organization.id}
+            onHover={() => setHoveredOrgId(Organization.id)}
+            onLeave={() => setHoveredOrgId(null)}
+          />
+        </EntityCreationCard>
       )}
     </div>
   );

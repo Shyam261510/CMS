@@ -8,37 +8,34 @@ import { useParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSelector } from "react-redux";
 import { TeamCardProps } from "@/components/team-card";
-import { getUserData } from "@/hooks/getUserData";
-import { getOrganization } from "@/hooks/getOrganization";
-import { fetchAllUsers } from "@/hooks/fetchAllUser";
-import { getTeamData } from "@/hooks/getTeam";
+import { Leave } from "@/lib/dataSlice";
 
 export default function Team() {
+  const userMap = new Map();
+
   const param = useParams();
   let { teamId } = param;
   const teams = useSelector((state: any) => state.userSlice.team);
-  const organization = useSelector(
-    (state: any) => state.userSlice.organization
-  );
+  const allUsers = useSelector((state: any) => state.userSlice.allUsers);
+
+  allUsers.forEach((user: any) => {
+    let { id, name } = user;
+    userMap.set(id, name);
+  });
 
   const team = teams.filter((data: TeamCardProps) =>
     data.teamMembers?.some((memmber) => memmber.teamId === teamId)
   );
 
-  // Getting user info like id , email , name etc.
-
-  getUserData();
-
-  // getting organization data
-
-  getOrganization();
-
-  // Getting all user's how have login in to our portal
-  fetchAllUsers();
-
-  //getting team data
-
-  getTeamData(String(organization.id));
+  const teamPendingLeaves = team[0].leaves
+    ?.filter((leave: Leave) => !leave.approve && !leave.rejected)
+    .map((leave: any) => {
+      let { id, leaveType, reason, userId } = leave;
+      if (userMap.has(userId)) {
+        let name = userMap.get(userId);
+        return { id, reason, name, userId, leaveType };
+      }
+    });
 
   return (
     <div className="min-h-full min-w-screen ">
@@ -55,7 +52,7 @@ export default function Team() {
               </p>
             </div>
             <Tabs defaultValue="Team">
-              <TabsList className="grid w-full grid-cols-2 md:w-[400px]">
+              <TabsList className="grid w-full grid-cols-2 md:w-[400px] ">
                 <TabsTrigger value="Team">Team</TabsTrigger>
                 <TabsTrigger value="Leaves">Leaves</TabsTrigger>
               </TabsList>
@@ -65,7 +62,10 @@ export default function Team() {
                 <TeamSection team={team[0]} />
               </TabsContent>
               <TabsContent value="Leaves">
-                <LeaveSection team={team[0]} />
+                <LeaveSection
+                  team={team[0]}
+                  teamPendingLeaves={teamPendingLeaves}
+                />
               </TabsContent>
             </Tabs>
           </div>

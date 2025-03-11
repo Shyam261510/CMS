@@ -10,6 +10,7 @@ import { Leave } from "@/lib/dataSlice";
 
 import { Users } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 
 export interface TeamMember {
@@ -48,7 +49,7 @@ export default function TeamCard({
     if (isTeamMemberExist) {
       router.push(`/Organization/${organizationId}/${team.id}`);
     } else {
-      alert(`You are not member of ${team.teamName}`);
+      toast.error(`Your are not the member of ${team.teamName}`);
     }
   };
   return (
