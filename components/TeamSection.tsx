@@ -12,6 +12,7 @@ import axios from "axios";
 import { setisFetch, setLoading, setTeam } from "@/lib/dataSlice";
 import { Loading } from "@/components/Loader";
 import toast from "react-hot-toast";
+import { Label } from "@radix-ui/react-label";
 
 export const TeamSection = ({ team }: { team: TeamCardProps }) => {
   const isFetch = useSelector((state: any) => state.userSlice.isFetch);
@@ -27,6 +28,7 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
   const dispatch = useDispatch();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [isEdit, setIsEdit] = useState<boolean>(false);
 
   const [searchMemberQuery, setSearchMemberQuery] = useState("");
 
@@ -205,7 +207,48 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
         description="View and manage your personal information"
       >
         <div className="relative ">
-          <Edit2 className="absolute right-8 bottom-7 text-gray-800 hover:text-gray-400" />
+          <Edit2 className="absolute right-8 top-[-3rem] text-gray-800 hover:text-gray-400" />
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2 cursor-not-allowed">
+              <Label>Full Name</Label>
+              <Input value={userData.name} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">
+                Your name cannot be changed
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 cursor-not-allowed">
+              <Label>Email</Label>
+              <Input value={userData.email} disabled className="bg-muted/50" />
+              <p className="text-xs text-muted-foreground">
+                Your email address cannot be changed
+              </p>
+            </div>
+            <div
+              className={`flex flex-col gap-2 ${
+                !isEdit ? "cursor-not-allowed" : ""
+              }`}
+            >
+              <Label>Contact Number</Label>
+              <Input disabled className="bg-muted/50" />
+            </div>
+            <div
+              className={`flex flex-col gap-2 ${
+                !isEdit ? "cursor-not-allowed" : ""
+              }`}
+            >
+              <Label>Role</Label>
+              <Input disabled className="bg-muted/50" />
+            </div>
+
+            {isEdit ? (
+              <div className="flex justify-between">
+                <Button>Cancel</Button>
+                <Button>Save Change</Button>
+              </div>
+            ) : (
+              <div></div>
+            )}
+          </div>
         </div>
       </PopupCard>
     </div>

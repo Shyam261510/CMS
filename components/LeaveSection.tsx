@@ -2,7 +2,7 @@
 import { PopupCard } from "./PopUpCard";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Plus, Bell, Check, XCircle, CheckCircle } from "lucide-react";
+import { Plus, Bell, XCircle, CheckCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 
 import {
