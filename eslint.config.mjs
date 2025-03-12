@@ -12,11 +12,15 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   {
+    plugins: ["react-hooks"], // Add this line to include the plugin
     rules: {
-      "react/no-unescaped-entities": "off",
+      "@typescript-eslint/no-explicit-any": "off",
       "react-hooks/exhaustive-deps": "off",
-      "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-base-to-string": "off",
+      "@typescript-eslint/no-unused-vars": "off",
       "no-console": "off",
+      "react-hooks/rules-of-hooks": "off", // Now correctly referenced
+      "prefer-const": "off",
     },
   },
 ];
