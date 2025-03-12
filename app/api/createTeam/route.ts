@@ -17,7 +17,6 @@ export const POST = async (req: NextRequest) => {
       teamName,
       email,
       name,
-      role,
       contactNumber,
       userId,
     }: Team = await req.json();
@@ -46,8 +45,8 @@ export const POST = async (req: NextRequest) => {
       success: true,
       message: "Team Created Successfully",
     });
-  } catch (e: any) {
-    console.error(`Error in Creating Team Error : ${e.message}`);
+  } catch (e) {
+    console.error(`Error in Creating Team `);
     return NextResponse.json({
       success: false,
       message: "Could not create Team",

@@ -23,8 +23,8 @@ export const POST = async (req: NextRequest) => {
       success: true,
       message: "Leave applied successfully. ✅",
     });
-  } catch (error: any) {
-    console.log(`Error while applying for leaves, Error : ${error.message}`);
+  } catch {
+    console.log(`Error while applying for leaves, `);
     return NextResponse.json({
       success: false,
       message: "Error while applying for leave",

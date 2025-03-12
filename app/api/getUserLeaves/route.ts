@@ -22,8 +22,8 @@ export const GET = async (req: NextRequest) => {
       message: "Getting your leaves successfully",
       leaves,
     });
-  } catch (error: any) {
-    console.log(`Error in getting user leaves ${error.message}`);
+  } catch (error) {
+    console.log(`Error in getting user leaves `);
     return NextResponse.json({
       success: false,
       message: "Error in getting you leaves",

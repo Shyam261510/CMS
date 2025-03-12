@@ -30,10 +30,10 @@ export const GET = async (req: NextRequest) => {
       success: false,
       message: "Please Provide Organization Id",
     });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({
       success: false,
-      message: `Error Getting Team ${error.message}`,
+      message: `Error Getting Team `,
     });
   }
 };

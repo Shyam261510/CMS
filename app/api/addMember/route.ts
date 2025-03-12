@@ -80,8 +80,8 @@ export const POST = async (req: NextRequest) => {
       success: true,
       message: "Team member added successfully",
     });
-  } catch (error: any) {
-    console.log(`Error in adding Team Member in Team ${error.message}`);
+  } catch (error) {
+    console.log(`Error in adding Team Member in Team `);
     return NextResponse.json({
       success: false,
       message: "Error is adding Team Member in Team",

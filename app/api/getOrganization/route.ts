@@ -19,10 +19,10 @@ export const GET = async (req: NextRequest) => {
         organization: organization?.organization,
       });
     }
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({
       success: false,
-      message: `Error not able to Get organinazation ${error.message}`,
+      message: `Error not able to Get organinazation `,
     });
   }
 };

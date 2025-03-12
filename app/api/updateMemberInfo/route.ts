@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: NextRequest, res: NextResponse) => {
+export const POST = async (req: NextRequest) => {
   try {
     const {
       memberId,
@@ -43,7 +43,7 @@ export const POST = async (req: NextRequest, res: NextResponse) => {
     });
 
     return NextResponse.json({ success: true, message: "Information updated" });
-  } catch (error: any) {
-    console.log(`Error in updating teamMember info ${error.message}`);
+  } catch (error) {
+    console.log(`Error in updating teamMember info `);
   }
 };

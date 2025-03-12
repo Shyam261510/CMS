@@ -15,8 +15,8 @@ export const GET = async () => {
       },
     });
     return NextResponse.json({ success: true, allUsers });
-  } catch (error: any) {
-    console.log(`Could not able to get all user's Error : ${error.message}`);
+  } catch (error) {
+    console.log(`Could not able to get all user's `);
     return NextResponse.json({
       success: false,
       message: "Error in getting user",
