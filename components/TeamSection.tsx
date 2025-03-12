@@ -12,23 +12,41 @@ import axios from "axios";
 import { setisFetch, setLoading, setTeam } from "@/lib/dataSlice";
 import { Loading } from "@/components/Loader";
 import toast from "react-hot-toast";
+import { Label } from "@radix-ui/react-label";
 
+interface Response {
+  data: {
+    success: boolean;
+    message: string;
+  };
+}
 export const TeamSection = ({ team }: { team: TeamCardProps }) => {
   const isFetch = useSelector((state: any) => state.userSlice.isFetch);
   const isLoading = useSelector((state: any) => state.userSlice.isLoading);
   const userData = useSelector((state: any) => state.userSlice.userData);
+
   const role = team?.teamMembers
     ?.map((member: TeamMember) => member.userId === userData.id && member.role)
     .filter((data) => data !== false)
     .flat();
 
   const [isModelOpen, setIsModelOpen] = useState<boolean>(false);
-  const [isInfoModelOpen, setIsInfoModelOpen] = useState<boolean>(false);
+  const [isInfoModelOpen, setIsInfoModelOpen] = useState({
+    isOpen: false,
+    name: "",
+    email: "",
+    contactNumber: "",
+    role: "",
+    memberId: "",
+    teamId: "",
+  });
   const dispatch = useDispatch();
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const [searchMemberQuery, setSearchMemberQuery] = useState("");
+
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const allUsers = useSelector((state: any) => state.userSlice.allUsers);
 
@@ -90,6 +108,45 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
     getTeam();
   }, [dispatch, isFetch]);
 
+  function cancelHandler() {
+    setIsInfoModelOpen((prev) => ({
+      ...prev,
+      conactNumber: prev.contactNumber,
+      role: prev.role,
+      isOpen: false,
+    }));
+    setIsEditing(false);
+  }
+
+  async function saveHandler() {
+    try {
+      const { role, contactNumber, memberId, teamId } = isInfoModelOpen;
+
+      const result = (await axios.post("/api/updateMemberInfo", {
+        teamId,
+        memberId,
+        role,
+        contactNumber,
+      })) as Response;
+
+      if (result?.data.success) {
+        dispatch(setisFetch(!isFetch));
+        dispatch(setLoading(true));
+        toast.success("Updated");
+        setIsEditing(false);
+        setIsInfoModelOpen((prev) => ({ ...prev, isOpen: false }));
+      }
+    } catch (error) {
+      console.error("Error updating member info:", error);
+      toast.error("Failed to update member info. Please try again.");
+    }
+  }
+
+  function editHandler() {
+    role[0] === "TeamLead"
+      ? setIsEditing(!isEditing)
+      : toast.error("You are not team Lead");
+  }
   if (isLoading) return <Loading />;
 
   return (
@@ -138,7 +195,18 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
               <Badge>{member.role ? member.role : "Not assign"}</Badge>
               <h2
                 className="absolute right-3 top-2 text-gray-800 hover:text-gray-500"
-                onClick={() => setIsInfoModelOpen(true)}
+                onClick={() => (
+                  setIsInfoModelOpen({
+                    isOpen: true,
+                    name: member.name,
+                    email: member.email,
+                    contactNumber: String(member.contactNumber),
+                    role: String(member.role),
+                    memberId: member.id,
+                    teamId: member.teamId,
+                  }),
+                  console.log(isInfoModelOpen)
+                )}
               >
                 <EyeIcon />
               </h2>
@@ -199,13 +267,92 @@ export const TeamSection = ({ team }: { team: TeamCardProps }) => {
 
       {/* user can edit details */}
       <PopupCard
-        isOpen={isInfoModelOpen}
-        onClose={() => setIsInfoModelOpen(false)}
+        isOpen={isInfoModelOpen.isOpen}
+        onClose={() =>
+          setIsInfoModelOpen((prev) => ({ ...prev, isOpen: false }))
+        }
         title="Profile Details"
         description="View and manage your personal information"
       >
         <div className="relative ">
-          <Edit2 className="absolute right-8 bottom-7 text-gray-800 hover:text-gray-400" />
+          <Edit2
+            className="absolute right-8 cursor-pointer  text-gray-800 hover:text-gray-400"
+            onClick={editHandler}
+          />
+          <div className="grid grid-col-6 gap-2">
+            <div className="grid gap-3">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                value={isInfoModelOpen.name}
+                disabled
+                className="bg-muted/50 cursor-not-allowed"
+              />
+              <p className="text-xs text-muted-foreground">
+                Your name cannot be changed
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={isInfoModelOpen.email}
+                disabled
+                className="bg-muted/50 cursor-not-allowed"
+              />
+              <p className="text-xs text-muted-foreground">
+                Your email address cannot be changed
+              </p>
+            </div>
+
+            <div className="grid gap-3">
+              <Label htmlFor="contactNumber">Contact Number</Label>
+              <Input
+                id="contactNumber"
+                value={isInfoModelOpen.contactNumber}
+                disabled={!isEditing}
+                className={!isEditing ? "cursor-not-allowed" : ""}
+                type="text"
+                onChange={(e) =>
+                  setIsInfoModelOpen((prev) => ({
+                    ...prev,
+                    contactNumber: e.target.value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="grid gap-3">
+              <Label htmlFor="role">Role</Label>
+              <Input
+                id="role"
+                type="text"
+                value={isInfoModelOpen.role}
+                disabled={!isEditing}
+                className={!isEditing ? "cursor-not-allowed" : "bg-muted/50"}
+                onChange={(e) =>
+                  setIsInfoModelOpen((prev) => ({
+                    ...prev,
+                    role: e.target.value,
+                  }))
+                }
+              />
+            </div>
+            {isEditing ? (
+              <div className="mt-5 flex justify-around">
+                <Button onClick={cancelHandler} className="cursor-pointer">
+                  Cancel
+                </Button>
+                <Button onClick={saveHandler} className="cursor-pointer">
+                  Save
+                </Button>
+              </div>
+            ) : (
+              <div></div>
+            )}
+          </div>
         </div>
       </PopupCard>
     </div>
