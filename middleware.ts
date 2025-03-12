@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const session = req.cookies.get("next-auth.session-token")?.value;
+
   const currentPath = req.nextUrl.pathname;
 
   // If user is logged in and trying to access login page ("/"), redirect to "/Home"
@@ -14,6 +15,7 @@ export async function middleware(req: NextRequest) {
     !session &&
     (currentPath === "/Home" || currentPath.startsWith("/Organization"))
   ) {
+    console.log(session);
     return NextResponse.redirect(new URL("/", req.url));
   }
 
