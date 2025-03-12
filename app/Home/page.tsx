@@ -38,6 +38,7 @@ export default function Home() {
 
   // Getting all user's how have login in to our portal
   fetchAllUsers();
+  console.log(Organization);
 
   async function createOrganization(e: React.FormEvent) {
     e.preventDefault();
@@ -55,24 +56,25 @@ export default function Home() {
   return (
     <div>
       <Navbar />
-      {Organization && (
-        <EntityCreationCard
-          showDescription={Organization ? false : true}
-          description="Organization"
-          entityName={organizationName}
-          setEntityName={setOrganizationName}
-          isDialogOpen={isDialogOpen}
-          setIsDialogOpen={setIsDialogOpen}
-          handleCreateEntity={createOrganization}
-        >
+
+      <EntityCreationCard
+        showDescription={Organization ? false : true}
+        description="Organization"
+        entityName={organizationName}
+        setEntityName={setOrganizationName}
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        handleCreateEntity={createOrganization}
+      >
+        {Organization && (
           <OrganizationComponent
             organization={Organization}
             isHovered={hoveredOrgId === Organization.id}
             onHover={() => setHoveredOrgId(Organization.id)}
             onLeave={() => setHoveredOrgId(null)}
           />
-        </EntityCreationCard>
-      )}
+        )}
+      </EntityCreationCard>
     </div>
   );
 }

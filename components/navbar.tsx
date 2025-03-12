@@ -46,7 +46,7 @@ export default function Navbar() {
   }
   function login() {
     signIn("google");
-    toast.success(`Welcome back`);
+    toast.success(`Welcome`);
   }
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 transition-colors duration-200">
